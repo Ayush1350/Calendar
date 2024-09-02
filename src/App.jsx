@@ -1,17 +1,21 @@
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import { CiCalendar } from "react-icons/ci";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 import { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
+  const [toggle, setToggle] = useState(false);
   const [dates, setDates] = useState([]);
   const [d, setD] = useState(new Date());
   const [todayDate, setToDayDate] = useState(d.getDate());
   const [todayMonth, setTodayMonth] = useState(d.getMonth());
   const [todayYear, setTodayYear] = useState(d.getFullYear());
   const [selectedDate, setSelectedDate] = useState(null);
+
+  const years = Array.from({ length: 101 }, (_, i) => 1950 + i);
 
   const monthName = new Date(todayYear, todayMonth).toLocaleString("en-US", {
     month: "short",
@@ -30,7 +34,6 @@ function App() {
 
       const daysInPrevMonth = getDaysInMonth(prevYear, prevMonth);
       const daysInCurrentMonth = getDaysInMonth(year, month);
-      console.log(daysInCurrentMonth);
 
       const firstDayOfMonth = new Date(year, month, 1).getDay();
       const totalCells = 42;
@@ -95,23 +98,43 @@ function App() {
     );
   };
 
+  const handleArrowDown = () => {
+    setToggle(!toggle);
+  };
+
+  const handleYearClick = (year) => {
+    setTodayYear(year);
+    setToggle(false);
+  };
+
   return (
     <div className="flex items-center gap-[3rem]">
       <div className="bg-[#FFFFFF] w-[20rem] h-[20rem] mt-[6rem] rounded-[1rem] p-[1rem]">
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-[1.2rem]">
+        <div className="flex  items-center justify-between">
+          <span className="flex gap-[0.5rem] items-center font-bold text-[1.2rem]">
             {monthName} {todayYear}
+            {toggle ? (
+              <IoIosArrowDown
+                className="hover:text-blue-500 cursor-pointer "
+                onClick={handleArrowDown}
+              />
+            ) : (
+              <IoIosArrowUp
+                className="hover:text-blue-500 cursor-pointer "
+                onClick={handleArrowDown}
+              />
+            )}
           </span>
           <div className="flex gap-[1rem]">
             <IoIosArrowBack
               onClick={handleLeftClick}
-              className={`hover:cursor-pointer text-[1.2rem] ${
+              className={`hover:text-blue-500 cursor-pointer text-[1.2rem] ${
                 todayMonth >= d.getMonth() ? "text-gray-950" : "text-gray-400"
               }`}
             />
             <IoIosArrowForward
               onClick={handleRightClick}
-              className={`hover:cursor-pointer text-[1.2rem] ${
+              className={`hover:text-blue-500 cursor-pointer text-[1.2rem] ${
                 todayMonth <= d.getMonth() ? "text-gray-950" : "text-gray-400"
               }`}
             />
@@ -132,7 +155,7 @@ function App() {
               key={index}
               className={`flex justify-center items-center border-solid border-[1px] border-[#D5D4DF] hover:cursor-pointer ${
                 item.date === selectedDate && item.currentMonth
-                  ? "bg-[#45539D] text-white"
+                  ? "bg-blue-500  text-white"
                   : "hover:bg-[#E9F0F5]"
               } ${item.currentMonth ? "" : "text-gray-400"}`}
               onClick={() => handleDateClick(item.date)}
@@ -142,6 +165,27 @@ function App() {
           ))}
         </div>
       </div>
+
+      {toggle ? (
+        <div className="absolute top-[10rem] bg-[#FFFFFF] w-[20rem] h-[15rem] ">
+          <div className="grid grid-cols-3 text-[1.1rem] overflow-y-auto max-h-[15rem]">
+            {years.map((year, index) => (
+              <p
+                key={index}
+                className={`flex justify-center border-solid border-[1px] border-[#D5D4DF] pt-[1rem] pb-[1rem] hover:bg-[#D5D4DF] cursor-pointer ${
+                  year === d.getFullYear() ? "bg-blue-500 text-white" : ""
+                }`}
+                onClick={() => handleYearClick(year)}
+              >
+                {year}
+              </p>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+
       <div className="relative">
         <span className="flex items-center justify-between w-[12rem] h-[3rem] bg-[#414E55] text-[#cbcbcb] mt-[3rem] p-[0.8rem] border-[1px] border-black rounded-[0.3rem]">
           <p>{`${selectedDate} / ${todayMonth + 1} / ${todayYear}`}</p>
@@ -151,7 +195,7 @@ function App() {
             onClick={calenderIconClick}
           />
         </span>
-        <p className="absolute top-[35%] left-[5%] bg-[#414E55] text-[#cbcbcb] ">
+        <p className="absolute top-[35%] left-[8%] pl-[0.3rem] pr-[0.3rem] bg-[#414E55] text-[#cbcbcb] ">
           Date Picker
         </p>
       </div>
